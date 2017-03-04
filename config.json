@@ -1,0 +1,12 @@
+{
+	"client_id" : "Xj4Wiv-P_1oo6w",
+	"client_secret" : "2_Lb1RhwwJI92v-E3__LCJ96yS0",
+	"user_agent" : "logger by /u/crushack",
+
+	"mongo_host" : "localhost",
+	"mongo_port" : 27017,
+
+	"subreddits" : [
+		"all",
+	]
+}
