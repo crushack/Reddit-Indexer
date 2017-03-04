@@ -7,11 +7,11 @@ specified in the config.json file under the name subreddits.
 Example:
     Basic usage::
 
-        $ python subredditparser.py
+        $ python reddit_indexer.py
 
     Threads specification::
 
-        $ python subredditparser.py --num_threads=5
+        $ python reddit_indexer.py --num_threads=5
 
 
 Attributes:
