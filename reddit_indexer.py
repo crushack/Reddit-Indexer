@@ -61,7 +61,7 @@ gflags.DEFINE_integer('comment_limit', 1000,
                       'request.')
 gflags.DEFINE_integer('update_time', 2000,
                       'Time between updates in milliseconds.')
-gflags.DEFINE_integer('num_threads', None,
+gflags.DEFINE_integer('num_threads', 5,
                       'Number of threads to be used in application.')
 
 
