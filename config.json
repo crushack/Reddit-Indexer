@@ -7,6 +7,6 @@
 	"mongo_port" : 27017,
 
 	"subreddits" : [
-		"all",
+		"all"
 	]
 }

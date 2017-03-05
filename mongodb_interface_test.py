@@ -7,6 +7,7 @@ class TestQueries(unittest.TestCase):
     FROM_TIMESTAMP = 1
     TO_TIMESTAMP = 2
     KEY = 'key'
+    SUBREDDIT = 'all'
 
     WITH_KEY_QUERRY = {
         'timestamp' : {
@@ -35,7 +36,7 @@ class TestQueries(unittest.TestCase):
 
     def test_submissions_query_without_key(self):
         query = mongodb_interface.get_submissions(
-            self.client, 'all', TestQueries.FROM_TIMESTAMP,
+            self.client, TestQueries.SUBREDDIT, TestQueries.FROM_TIMESTAMP,
             TestQueries.TO_TIMESTAMP)
 
         self.assertEqual(
@@ -44,7 +45,7 @@ class TestQueries(unittest.TestCase):
 
     def test_submissions_query_with_key(self):
         query = mongodb_interface.get_submissions(
-            self.client, 'all', TestQueries.FROM_TIMESTAMP,
+            self.client, TestQueries.SUBREDDIT, TestQueries.FROM_TIMESTAMP,
             TestQueries.TO_TIMESTAMP, TestQueries.KEY)
 
         self.assertEqual(
@@ -53,7 +54,7 @@ class TestQueries(unittest.TestCase):
 
     def test_comments_query_without_key(self):
         query = mongodb_interface.get_comments(
-            self.client, 'all', TestQueries.FROM_TIMESTAMP,
+            self.client, TestQueries.SUBREDDIT, TestQueries.FROM_TIMESTAMP,
             TestQueries.TO_TIMESTAMP)
 
         self.assertEqual(
@@ -62,7 +63,7 @@ class TestQueries(unittest.TestCase):
 
     def test_comments_query_with_key(self):
         query = mongodb_interface.get_comments(
-            self.client, 'all', TestQueries.FROM_TIMESTAMP,
+            self.client, TestQueries.SUBREDDIT, TestQueries.FROM_TIMESTAMP,
             TestQueries.TO_TIMESTAMP, TestQueries.KEY)
 
         self.assertEqual(
@@ -102,10 +103,6 @@ class TestInsertionIndexes(unittest.TestCase):
         mongodb_interface.insert_comments(
             self.client, TestInsertionIndexes.SUBREDDIT, [])
         self.ensure_index.assert_has_calls(self.calls)
-
-
-class TestInit(unittest.TestCase):
-    pass
 
 
 if __name__ == '__main__':

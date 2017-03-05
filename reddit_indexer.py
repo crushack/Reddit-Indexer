@@ -22,9 +22,12 @@ Attributes:
         in a single request.
     update_time (int): The minimum time (specified in milliseconds) between
         retrievals for any subreddit.
-    num_threads (int): The number of threads used in this program (if not
+    num_threads (int): The number of threads used in this script (if not
         specified, it will use a thread for every subreddit).
-
+    [no]compress_subreddits (boolean): If the scrupt should delete duplicate
+        subreddits.
+    [no]erase_database (boolean): If the script should erase the database before
+        starting.
 
 Todo:
     pass the lint test :)
@@ -63,6 +66,11 @@ gflags.DEFINE_integer('update_time', 2000,
                       'Time between updates in milliseconds.')
 gflags.DEFINE_integer('num_threads', 5,
                       'Number of threads to be used in application.')
+
+gflags.DEFINE_boolean('compress_subreddits', True,
+                      'Check if input has the same reddits multiple times.')
+gflags.DEFINE_boolean('erase_database', False,
+                      'Erase database when starting the script.')
 
 
 class SubredditRetriever(object):
@@ -272,8 +280,7 @@ def format_submission(submission):
     """
 
     return Counter(
-        [s.lower() for s in re.findall(r"[\w']+", submission['body'])]
-        ).keys()
+        [s.lower() for s in re.findall(r"[\w']+", submission['body'])]).keys()
 
 
 def sigterm_handler(*_):
@@ -294,6 +301,8 @@ def create_simple_threads(reddit, timestamp, subreddits):
         subreddits: A list of strings representing the names of the
             subreddits from which the information will be retrived.
 
+    Returns:
+        A list of SubredditThread instances.
     """
 
     threads = []
@@ -315,6 +324,9 @@ def create_multiple_subreddit_threads(reddit, timestamp,
             created.
         subreddits: A list of strings representing the names of the subreddits
             from which the information will be retrived.
+
+    Returns:
+        A list of SubredditThread instances.
     """
 
     random.shuffle(subreddits)
@@ -342,6 +354,9 @@ def create_threads(reddit, timestamp, num_threads, subreddits):
             created.
         subreddits: A list of strings representing the names of the subreddits
             from which the information will be retrived.
+
+    Returns:
+        A list of SubredditThread instances.
     """
 
     if num_threads and num_threads < len(subreddits):
@@ -349,6 +364,19 @@ def create_threads(reddit, timestamp, num_threads, subreddits):
                                                  num_threads, subreddits)
     else:
         return create_simple_threads(reddit, timestamp, subreddits)
+
+
+def erase_duplicates(li):
+    """Erase duplicates in list.
+
+    Args:
+        li: A list of elements.
+
+    Returns:
+        A list of unique elements created from li.
+    """
+
+    return Counter(li).keys()
 
 
 def main(argv):
@@ -367,15 +395,20 @@ def main(argv):
         CONFIG_DATA = json.load(config_file)
 
     MONGO_CLIENT = init_mongodb(CONFIG_DATA['mongo_host'],
-                                CONFIG_DATA['mongo_port'], keep_existing=False)
+                                CONFIG_DATA['mongo_port'],
+                                keep_existing=not FLAGS.erase_database)
 
     reddit = praw.Reddit(client_id=CONFIG_DATA['client_id'],
                          client_secret=CONFIG_DATA['client_secret'],
                          user_agent=CONFIG_DATA['user_agent'])
 
+    if FLAGS.compress_subreddits:
+        subreddits = erase_duplicates(CONFIG_DATA['subreddits'])
+    else:
+        subreddits = CONFIG_DATA['subreddits']
+
     timestamp = 0 # int(time.time())
-    threads = create_threads(reddit, timestamp,
-                             FLAGS.num_threads, CONFIG_DATA['subreddits'])
+    threads = create_threads(reddit, timestamp, FLAGS.num_threads, subreddits)
 
     for thread in threads:
         thread.start()
