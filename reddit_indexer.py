@@ -376,7 +376,7 @@ def erase_duplicates(li):
         A list of unique elements created from li.
     """
 
-    return Counter(li).keys()
+    return list(set(li))
 
 
 def main(argv):
